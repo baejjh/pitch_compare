@@ -1,43 +1,52 @@
-var context, // audio context
-	referenceOscillator,
-	testingOscillator,
-	centDifference = 300,
+var referenceTone,
+	testingTone,
+	plusOrMinus,
+	centDifference = 50,
 	level = 0;
 
 $(document).ready(function () {
-	context = new (window.AudioContext || window.webkitAudioContext)();
+	var context = new (window.AudioContext || window.webkitAudioContext)();
 
-	// create oscillators
-	referenceOscillator = createOscillator(440);
-	testingOscillator = createOscillator(440);
+	referenceTone = new Tone(context);
+	testingTone = new Tone(context);
+
+	// get button clicks
+	$('#up').click(answer);
+	$('#down').click(answer);
 
 	play();
 });
 
 function play() {
-	var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-	testingOscillator = createOscillator(440 + plusOrMinus * diffInCentsFrom(440, centDifference));
-
+	plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+	testingTone.setFrequency(440 + plusOrMinus * diffInCentsFrom(440, centDifference));
 
 	// start
-	referenceOscillator.start(0);
-	testingOscillator.start(1.0);
+	referenceTone.playFor(2000);
+	testingTone.playFor(1000, 1000);
+}
 
-	// stop
-	referenceOscillator.stop(2);
-	testingOscillator.stop(2);
+function answer() {
+	if (this.id == 'up' && plusOrMinus == 1 ||
+		this.id == 'down' && plusOrMinus == -1)
+	{
+		level += 1;
+		centDifference = centDifference * .9;
+	} else {
+		level = 0;
+		centDifference = 50;
+	}
+
+	$('#level').html('Level ' + level + '<br>' + centDifference.toFixed(0) + '%');
+	play();
 }
 
 function createOscillator(freq) {
 	var oscillator = context.createOscillator();
 	oscillator.frequency.value = freq;
 
-	var gainNode = context.createGain();
-	gainNode.gain.value = 0.2;
-
 	/* Connections */
 	oscillator.connect(gainNode)
-	gainNode.connect(context.destination);
 
 	return oscillator;
 }
