@@ -29,12 +29,15 @@ function Tone(audioContext, frequency, gain) {
  			return;
  		}
 
- 		this.gainNode.gain.value = .2;
- 		console.log(this.oscillator.frequency.value);
+ 		this.gainNode.gain.value = .3;
  		setTimeout(function() { self.gainNode.gain.value = 0; }, timeInMilliseconds)
  	}; 
 
  	this.setFrequency = function (value) {
  		this.oscillator.frequency.value = value;
+ 	}
+
+ 	this.pause = function () {
+ 		this.gainNode.gain.value = 0;
  	}
 }
